@@ -1,0 +1,35 @@
+/* バグ入り暗号化データデコーダー */
+#include "longint.hsp"
+
+	in="6204484017332394393600001124000727777607680000362880103331479663861449296666513375232000000001"
+	sdim out,strlen(in)
+
+	dimtype table,longint,64
+
+	/* 階乗のテーブルを作成 */
+	table=longint(1)
+	repeat 63:table(cnt+1)=table.cnt*(cnt+2):loop
+
+	/* BASE64のテーブルを作成 */
+	dim base64,64
+	repeat 26:base64.cnt=cnt+'A':loop
+	repeat 26:base64(cnt+26)=cnt+'a':loop
+	repeat 10:base64(cnt+52)=cnt+'0':loop
+	base64.62='+', '/'
+
+	/* 解析 */
+	repeat
+		k=-1
+		repeat 64
+			if str(table(63-cnt))=strmid(in,0,strlen(str(table(63-cnt)))):k=63-cnt:break
+		loop
+		if k!-1{
+			in=strmid(in,strlen(str(table.k)),strlen(in))
+			poke out,hit,base64.k:hit+
+			if strlen(in)=0:break
+		}else:mes"ERROR":break
+	loop
+
+	/* 結果出力 */
+	bsave "Result.txt",out,hit
+	stop
